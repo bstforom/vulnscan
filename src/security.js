@@ -10,6 +10,28 @@ const COOKIE_NAME = 'vs_sid';
 export const REQUIRE_AUTH = process.env.REQUIRE_AUTH === '1';
 const LOCAL_SESSION = { username: 'local', role: 'admin', csrfToken: 'local' };
 
+// ---- Local-mode guard ----
+// Local mode has no login and no real CSRF token, so it must only ever be reachable from this machine.
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
+export function isLoopbackHost(h) {
+  h = String(h || '').toLowerCase().replace(/^\[|\]$/g, '');
+  return LOOPBACK_HOSTS.has(h) || h.endsWith('.localhost');
+}
+
+// Rejects a non-loopback Host header (DNS rebinding) and state-changing requests from a
+// foreign Origin (CSRF — e.g. a cross-site multipart form posting to /api/scan/file).
+export function localModeGuard(req, res, next) {
+  if (REQUIRE_AUTH) return next();
+  const host = String(req.headers.host || '').replace(/:\d+$/, '');
+  if (!isLoopbackHost(host)) return res.status(403).json({ error: 'Local mode only accepts requests to localhost.' });
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && req.headers.origin) {
+    let origin = '';
+    try { origin = new URL(req.headers.origin).hostname; } catch { /* "null" or malformed */ }
+    if (!isLoopbackHost(origin)) return res.status(403).json({ error: 'Cross-origin request blocked.' });
+  }
+  next();
+}
+
 // ---- Security headers on every response (we practice what we check for) ----
 export function securityHeaders(req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff');

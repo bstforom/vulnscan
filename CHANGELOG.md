@@ -3,6 +3,16 @@
 All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.0.1] — 2026-10-19
+
+### Security
+- **Local mode is now locked to this machine.** Previously the server listened on all network
+  interfaces while local mode (no login) was active, so anyone on the same network could use the
+  dashboard and API. The server now binds to `127.0.0.1` by default (`HOST` to override) and refuses
+  to bind to a non-loopback address unless `REQUIRE_AUTH=1`.
+- Local mode rejects requests with a non-`localhost` `Host` header (DNS-rebinding protection) and
+  state-changing requests from a foreign `Origin` (CSRF protection, incl. multipart file uploads).
+
 ## [1.0.0] — 2026-10-18
 
 ### Added

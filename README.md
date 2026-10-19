@@ -163,6 +163,7 @@ npm run import
 | Variable | Description |
 |----------|-------------|
 | `PORT` | Server port (default `3000`) |
+| `HOST` | Bind address (default `127.0.0.1`). A non-loopback address requires `REQUIRE_AUTH=1` |
 | `NVD_API_KEY` | NVD API key to raise the rate limit |
 | `REQUIRE_AUTH=1` | Enable the hardened login (for shared deployments; off by default) |
 | `SECURE_COOKIES=1` | `Secure` cookie flag + HSTS (only behind HTTPS) |
@@ -174,7 +175,9 @@ npm run import
 
 ## 🔐 Optional hardened authentication
 
-Local mode runs **without login**. For a shared server, enable authentication with `REQUIRE_AUTH=1`:
+Local mode runs **without login**, so it is locked to this machine: the server binds to `127.0.0.1`, rejects requests whose `Host` is not `localhost` (DNS-rebinding protection), and blocks state-changing requests from other origins (CSRF protection). It refuses to start on a network address unless authentication is on.
+
+For a shared server, enable authentication with `REQUIRE_AUTH=1 HOST=0.0.0.0`:
 
 - **scrypt** password hashing, per-user salt, constant-time comparison
 - Passwords checked against **Have I Been Pwned** using k-anonymity (the password never leaves the server)

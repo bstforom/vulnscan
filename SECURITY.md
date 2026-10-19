@@ -26,4 +26,4 @@ within 72 hours. Do not open a public issue for security problems.
 
 | Version | Supported |
 |---------|-----------|
-| 1.0.x   | ✅        |
+| 1.0.x   | ✅ (please use the latest 1.0.x) |

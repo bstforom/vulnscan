@@ -21,16 +21,26 @@ import {
 import {
   securityHeaders, cookieParser, setSessionCookie, clearSessionCookie,
   makeRateLimiter, requireAuth, requireAuthPage, requireCsrf, REQUIRE_AUTH,
+  isLoopbackHost, localModeGuard,
 } from './src/security.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
 const ALLOW_REGISTRATION = process.env.ALLOW_REGISTRATION !== '0';
+
+// Without login, the platform must never be reachable from the network.
+if (!REQUIRE_AUTH && !isLoopbackHost(HOST)) {
+  console.error(`\n[VulnScan] Refusing to listen on ${HOST} without authentication.`);
+  console.error('[VulnScan] Local mode has no login. To expose VulnScan on a network, set REQUIRE_AUTH=1 (and SECURE_COOKIES=1 behind HTTPS).\n');
+  process.exit(1);
+}
 
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 app.use(securityHeaders);
+app.use(localModeGuard);
 app.use(cookieParser);
 app.use(express.json({ limit: '2mb' }));
 
@@ -388,7 +398,7 @@ app.use((err, req, res, next) => {
 process.on('unhandledRejection', (r) => console.error('[VulnScan] Unhandled rejection:', r?.message || r));
 process.on('uncaughtException', (e) => console.error('[VulnScan] Uncaught exception:', e?.message || e));
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, HOST, () => {
   console.log(`\n[VulnScan] Server running at: http://localhost:${PORT}`);
   console.log('[VulnScan] Authorized use only - scan only what you own or are permitted to test.\n');
 });
