@@ -7,7 +7,7 @@
 Scan websites, IPs, source code and dependency files against **100,000+ CVEs**, watch every check run **live**, and ship **SARIF** straight into GitHub Code Scanning.
 **Self-hosted. Two dependencies. No cloud account. No data leaves your machine.**
 
-[![CI](https://github.com/{{OWNER}}/vulnscan/actions/workflows/ci.yml/badge.svg)](https://github.com/{{OWNER}}/vulnscan/actions/workflows/ci.yml)
+[![CI](https://github.com/bstforom/vulnscan/actions/workflows/ci.yml/badge.svg)](https://github.com/bstforom/vulnscan/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/node-%E2%89%A522-339933?logo=node.js&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Dependencies](https://img.shields.io/badge/dependencies-2-brightgreen)
@@ -55,7 +55,7 @@ Most scanners are either expensive SaaS that wants your targets on *their* serve
 Requires **Node.js 22+** (uses the built-in `node:sqlite`; the `--experimental-sqlite` flag is already in the npm scripts).
 
 ```bash
-git clone https://github.com/{{OWNER}}/vulnscan.git
+git clone https://github.com/bstforom/vulnscan.git
 cd vulnscan
 npm install
 npm start
@@ -126,7 +126,7 @@ The CLI exits with code **1** when HIGH or CRITICAL findings are present (use `-
 ```yaml
 - uses: actions/setup-node@v4
   with: { node-version: 22 }
-- run: git clone --depth 1 https://github.com/{{OWNER}}/vulnscan /tmp/vulnscan && npm ci --prefix /tmp/vulnscan
+- run: git clone --depth 1 https://github.com/bstforom/vulnscan /tmp/vulnscan && npm ci --prefix /tmp/vulnscan
 - run: node /tmp/vulnscan/bin/vulnscan.js --file package-lock.json --sarif -o vulnscan-results --exit-zero
 - uses: github/codeql-action/upload-sarif@v3
   with: { sarif_file: vulnscan-results }

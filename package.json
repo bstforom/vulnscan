@@ -41,7 +41,13 @@
   },
   "license": "MIT",
   "author": "Ahmed AL Abri <a.ghost.om@gmail.com>",
+  "homepage": "https://github.com/bstforom/vulnscan#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bstforom/vulnscan.git"
+  },
   "bugs": {
+    "url": "https://github.com/bstforom/vulnscan/issues",
     "email": "79033079a@gmail.com"
   },
   "dependencies": {
