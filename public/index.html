@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VulnScan — Vulnerability Assessment Platform</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="logo">🛡️</span>
+        <div>
+          <div class="brand-name">VulnScan</div>
+          <div class="brand-sub">Vulnerability Assessment</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-label">General</div>
+        <button class="nav-btn active" data-tab="overview">📊 Dashboard</button>
+        <div class="nav-label">Scanning</div>
+        <button class="nav-btn" data-tab="target">🎯 Scan Target</button>
+        <button class="nav-btn" data-tab="file">📁 Scan File</button>
+        <div class="nav-label">Data</div>
+        <button class="nav-btn" data-tab="cve">🌐 CVE Database</button>
+        <button class="nav-btn" data-tab="reports">📋 Reports</button>
+        <button class="nav-btn" data-tab="schedules">⏱️ Schedules</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="status-dot"><span class="dot"></span> Connected</div>
+        <div class="muted">Sources: NVD · OSV · CISA KEV</div>
+        <div class="muted">v1.0 · Authorized use only</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-user">
+          <span class="user-chip" id="user-chip">—</span>
+          <button class="btn-logout" id="btn-logout">Sign out</button>
+        </div>
+      </div>
+
+      <!-- Dashboard tab -->
+      <section class="tab active" id="tab-overview">
+        <h1>📊 Dashboard</h1>
+        <p class="lead">Overview of the platform, the vulnerability database, and your scans.</p>
+
+        <div class="kpi-grid">
+          <div class="kpi kpi-blue">
+            <div class="kpi-icon">🗄️</div>
+            <div class="kpi-val" id="kpi-cve">—</div>
+            <div class="kpi-label">CVEs in database</div>
+          </div>
+          <div class="kpi kpi-red">
+            <div class="kpi-icon">🔴</div>
+            <div class="kpi-val" id="kpi-kev">—</div>
+            <div class="kpi-label">Actively exploited (KEV)</div>
+          </div>
+          <div class="kpi kpi-green">
+            <div class="kpi-icon">📋</div>
+            <div class="kpi-val" id="kpi-reports">—</div>
+            <div class="kpi-label">Reports generated</div>
+          </div>
+          <div class="kpi kpi-amber">
+            <div class="kpi-icon">⚠️</div>
+            <div class="kpi-val" id="kpi-risk">—</div>
+            <div class="kpi-label">Highest risk score</div>
+          </div>
+        </div>
+
+        <div class="overview-split">
+          <div class="panel">
+            <div class="panel-head"><h3>Recent reports</h3><button class="link" id="ov-all-reports">View all</button></div>
+            <div id="ov-reports"><div class="muted">Loading...</div></div>
+          </div>
+          <div class="panel">
+            <h3>Quick actions</h3>
+            <div class="quick-actions">
+              <button class="quick-btn" data-goto="target"><span>🎯</span> Scan a website or IP</button>
+              <button class="quick-btn" data-goto="file"><span>📁</span> Scan a file / dependencies</button>
+              <button class="quick-btn" data-goto="cve"><span>🌐</span> Browse the CVE database</button>
+            </div>
+            <div class="panel-note" id="ov-dbnote"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Target scan tab -->
+      <section class="tab" id="tab-target">
+        <h1>🎯 Scan Target (website or IP)</h1>
+        <p class="lead">Safe passive assessment: security headers, TLS certificate, technology fingerprint, exposed files, and correlation with the latest registered CVEs.</p>
+
+        <div class="auth-box">
+          <label class="check">
+            <input type="checkbox" id="auth-target" />
+            <span>I confirm I own this target or have explicit written authorization to test it, and I accept full legal responsibility.</span>
+          </label>
+        </div>
+
+        <div class="scan-row">
+          <input type="text" id="target-input" placeholder="example.com or https://example.com or 93.184.216.34" />
+          <button id="btn-scan-target" class="btn-primary" disabled>Scan</button>
+        </div>
+        <label class="check small">
+          <input type="checkbox" id="allow-private" />
+          <span>Allow scanning internal/private addresses (my local network only)</span>
+        </label>
+
+        <details class="advanced">
+          <summary>Advanced options (authenticated / bulk scan)</summary>
+          <label class="adv-label">Custom request headers — scan behind a login (one per line, e.g. <code>Cookie: session=abc</code>)</label>
+          <textarea id="custom-headers" class="adv-textarea" rows="3" placeholder="Cookie: session=...&#10;Authorization: Bearer ..."></textarea>
+          <label class="adv-label">Bulk targets — one per line (overrides the single target above; max 20)</label>
+          <textarea id="bulk-targets" class="adv-textarea" rows="3" placeholder="example.com&#10;sub.example.com"></textarea>
+        </details>
+
+        <div class="subdiscovery">
+          <div class="scan-row">
+            <input type="text" id="subdomain-input" placeholder="🔎 Discover subdomains of a domain you own (e.g. example.com)" />
+            <button id="btn-discover" class="btn-ghost">Discover</button>
+          </div>
+          <div id="subdomain-result"></div>
+        </div>
+
+        <div id="target-status" class="status"></div>
+        <div id="scan-log" class="scan-log" hidden></div>
+        <div id="target-result" class="result"></div>
+      </section>
+
+      <!-- File scan tab -->
+      <section class="tab" id="tab-file">
+        <h1>📁 Scan File</h1>
+        <p class="lead">Upload a dependency manifest (package.json, requirements.txt, composer.lock, go.mod...) to match against the vulnerability database, or any other file to analyze (hash, type, secrets, code patterns).</p>
+
+        <div class="auth-box">
+          <label class="check">
+            <input type="checkbox" id="auth-file" />
+            <span>I confirm I have the right to scan this file.</span>
+          </label>
+        </div>
+
+        <div class="drop" id="drop">
+          <input type="file" id="file-input" hidden />
+          <div class="drop-inner">
+            <div class="drop-icon">⬆️</div>
+            <div>Drag a file here or <button id="pick-file" class="link">choose a file</button></div>
+            <div class="muted" id="file-name">Maximum 15 MB</div>
+          </div>
+        </div>
+        <button id="btn-scan-file" class="btn-primary" disabled>Scan File</button>
+
+        <div id="file-status" class="status"></div>
+        <div id="file-result" class="result"></div>
+      </section>
+
+      <!-- CVE database tab -->
+      <section class="tab" id="tab-cve">
+        <h1>🌐 CVE Database (NVD + CISA KEV)</h1>
+        <p class="lead">A local indexed database that scales to 100k+ CVEs from NVD, flagging actively exploited vulnerabilities (KEV). Run <code>npm run import</code> to build the full database.</p>
+        <div class="scan-row">
+          <input type="text" id="cve-search" placeholder="Search: nginx, CVE-2024-..., SQL injection..." />
+          <button id="btn-cve-refresh" class="btn-ghost">↻ Refresh</button>
+        </div>
+        <div id="cve-status" class="status"></div>
+        <div id="cve-list" class="result"></div>
+      </section>
+
+      <!-- Reports tab -->
+      <section class="tab" id="tab-reports">
+        <h1>📋 Saved Reports</h1>
+        <p class="lead">Every scan is saved as an HTML and JSON report.</p>
+        <div id="reports-list" class="result"></div>
+      </section>
+
+      <!-- Schedules tab -->
+      <section class="tab" id="tab-schedules">
+        <h1>⏱️ Scheduled Scans</h1>
+        <p class="lead">Re-scan a target you own at a fixed interval while the server is running. Each run is saved as a report, so you can compare over time.</p>
+
+        <div class="panel">
+          <h3>New schedule</h3>
+          <div class="auth-box">
+            <label class="check">
+              <input type="checkbox" id="sched-auth" />
+              <span>I confirm I own this target or have explicit written authorization to test it, on every scheduled run.</span>
+            </label>
+          </div>
+          <div class="scan-row">
+            <input type="text" id="sched-target" placeholder="example.com or https://example.com" />
+            <select id="sched-interval" class="select">
+              <option value="60">Hourly</option>
+              <option value="360">Every 6 hours</option>
+              <option value="720">Every 12 hours</option>
+              <option value="1440" selected>Daily</option>
+              <option value="10080">Weekly</option>
+              <option value="custom">Custom…</option>
+            </select>
+            <input type="number" id="sched-custom" class="num" min="5" max="40320" placeholder="minutes" hidden />
+            <button id="btn-sched-add" class="btn-primary" disabled>Add</button>
+          </div>
+          <label class="check small">
+            <input type="checkbox" id="sched-private" />
+            <span>Allow scanning internal/private addresses (my local network only)</span>
+          </label>
+          <details class="advanced">
+            <summary>Advanced — custom request headers (authenticated scan)</summary>
+            <textarea id="sched-headers" class="adv-textarea" rows="3" placeholder="Cookie: session=...&#10;Authorization: Bearer ..."></textarea>
+          </details>
+          <div id="sched-status" class="status"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h3>Active schedules</h3><button class="link" id="sched-refresh">↻ Refresh</button></div>
+          <div class="panel-note muted">Schedules run only while the VulnScan server is up. The scheduler checks every minute.</div>
+          <div id="schedules-list" class="result"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Runtime data (do NOT commit — contains DB, users, caches)
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/users.json
+data/cve-cache.json
+
+# Generated reports and uploads
+reports/
+uploads/
+
+# Logs
+*.log
+logs/
+
+# Environment / secrets
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+
+# Keep the data/ folder but ignore its contents
+!data/.gitkeep

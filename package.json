@@ -1,0 +1,51 @@
+{
+  "name": "vulnscan-platform",
+  "version": "1.0.0",
+  "description": "VulnScan — authorized vulnerability assessment platform (web & file scanning, CVE intelligence)",
+  "type": "module",
+  "main": "index.js",
+  "exports": "./index.js",
+  "bin": {
+    "vulnscan": "bin/vulnscan.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "index.js",
+    "server.js",
+    "bin/",
+    "src/",
+    "public/",
+    "scripts/",
+    "README.md",
+    "LICENSE",
+    "SECURITY.md",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "security",
+    "vulnerability-scanner",
+    "pentest",
+    "cve",
+    "sast",
+    "sarif",
+    "owasp"
+  ],
+  "scripts": {
+    "start": "node --experimental-sqlite server.js",
+    "dev": "node --experimental-sqlite --watch server.js",
+    "import": "node --experimental-sqlite scripts/import-cve.js",
+    "cli": "node bin/vulnscan.js",
+    "test": "node --experimental-sqlite --test"
+  },
+  "license": "MIT",
+  "author": "Ahmed AL Abri <a.ghost.om@gmail.com>",
+  "bugs": {
+    "email": "79033079a@gmail.com"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

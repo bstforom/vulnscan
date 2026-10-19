@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in — VulnScan</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="auth-logo">🛡️</div>
+    <h1 class="auth-title">VulnScan</h1>
+    <p class="auth-sub">Vulnerability Assessment — hardened sign-in</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-mode="login">Sign in</button>
+      <button class="auth-tab" data-mode="register" id="tab-register">New account</button>
+    </div>
+
+    <form id="auth-form" autocomplete="off">
+      <label class="fld">
+        <span>Username</span>
+        <input type="text" id="username" autocomplete="username" required />
+      </label>
+
+      <label class="fld">
+        <span>Password</span>
+        <div class="pw-wrap">
+          <input type="password" id="password" autocomplete="current-password" required />
+          <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Show">👁️</button>
+        </div>
+      </label>
+
+      <!-- Password strength meter (registration only) -->
+      <div id="pw-strength" class="pw-strength" hidden>
+        <div class="pw-bar"><div class="pw-fill" id="pw-fill"></div></div>
+        <div class="pw-hints" id="pw-hints"></div>
+      </div>
+
+      <button type="submit" class="btn-primary auth-submit" id="submit-btn">Sign in</button>
+    </form>
+
+    <div id="auth-msg" class="auth-msg"></div>
+
+    <div class="auth-foot">
+      🔒 Passwords are hashed with scrypt and checked against known breaches. Authorized use only.
+    </div>
+  </div>
+  <script src="/js/login.js"></script>
+</body>
+</html>
